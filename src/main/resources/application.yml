@@ -6,10 +6,10 @@ spring:
   application:
     name: order-service
   rabbitmq:
-    host: localhost
+    host: rabbit-rabbitmq.default.svc.cluster.local
     port: 5672
     username: user
-    password: ${rabbitmq-password}
+    password: ${RABBIT_PASS}
     virtual-host: "/"
     ssl:
       enabled: false
