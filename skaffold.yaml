@@ -1,0 +1,19 @@
+apiVersion: skaffold/v2beta17
+kind: Config
+metadata:
+  name: order-service
+build:
+  local:
+    useBuildkit: true
+  artifacts:
+  - image: dev/order-service
+    docker:
+      dockerfile: Dockerfile
+deploy:
+  kubectl:
+    manifests:
+    - deployment.yaml
+portForward:
+- resourceType: service
+  resourceName: order-service
+  port: 8010
