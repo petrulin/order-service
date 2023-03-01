@@ -1,6 +1,9 @@
 package com.otus.orderservice.config;
 
-import org.springframework.amqp.core.*;
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.DirectExchange;
+import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -12,9 +15,13 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitMqConfig {
 
     @Value("${spring.rabbitmq.queues.order-queue}")
-    private String orderQueue;
+    private String queue;
     @Value("${spring.rabbitmq.exchanges.order-exchange}")
-    private String orderExchange;
+    private String exchange;
+    @Value("${spring.rabbitmq.queues.service-answer-queue}")
+    private String serviceAnswerQueue;
+    @Value("${spring.rabbitmq.exchanges.service-answer-exchange}")
+    private String serviceAnswerExchange;
 
 
     @Bean
@@ -31,18 +38,32 @@ public class RabbitMqConfig {
     }
 
     @Bean
-    public DirectExchange orderExchange() {
-        return new DirectExchange(orderExchange, true, false);
+    public DirectExchange exchange() {
+        return new DirectExchange(exchange, true, false);
     }
 
     @Bean
-    public Queue orderQueue() {
-        return new Queue(orderQueue, true, false, false);
+    public Queue queue() {
+        return new Queue(queue, true, false, false);
     }
 
     @Bean
-    public Binding schoolsSyncBinding() {
-        return BindingBuilder.bind(orderQueue()).to(orderExchange()).with(orderQueue);
+    public DirectExchange orderAnswerExchange() {
+        return new DirectExchange(serviceAnswerExchange, true, false);
+    }
+
+    @Bean
+    public Queue orderAnswerQueue() {
+        return new Queue(serviceAnswerQueue, true, false, false);
+    }
+
+    @Bean
+    public Binding queueSyncBinding() {
+        return BindingBuilder.bind(queue()).to(exchange()).with(queue);
+    }
+    @Bean
+    public Binding orderAnswerQueueSyncBinding() {
+        return BindingBuilder.bind(orderAnswerQueue()).to(orderAnswerExchange()).with(serviceAnswerQueue);
     }
 
 

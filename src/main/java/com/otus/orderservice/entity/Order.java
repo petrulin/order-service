@@ -25,12 +25,25 @@ public class Order {
     private String userName;
 
     @Column(name = "total_amount", nullable = false, precision = 2)
-    private BigDecimal totalAmount = BigDecimal.ZERO;
+    private BigDecimal amount = BigDecimal.ZERO;
 
     @Column(name = "total_discount", nullable = false, precision = 2)
-    private BigDecimal totalDiscount = BigDecimal.ZERO;
+    private BigDecimal discount = BigDecimal.ZERO;
 
     @Column(name = "total_quantity", nullable = false)
-    private Long totalQuantity = 0L;
+    private Long quantity = 0L;
 
+    @Column(name = "status", nullable = false)
+    private String status;
+
+    public Order(String userName, BigDecimal amount, BigDecimal discount, Long quantity) {
+        this.userName = userName;
+        this.amount = amount;
+        this.discount = discount;
+        this.quantity = quantity;
+        this.status = "created";
+    }
 }
+
+
+

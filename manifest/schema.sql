@@ -33,6 +33,7 @@ CREATE TABLE order_service.order (
    total_amount numeric(16,2) NOT NULL DEFAULT 0,
    total_discount numeric(16,2) NOT NULL DEFAULT 0,
    total_quantity int8 NOT NULL DEFAULT 0,
+   status varchar(50) NOT NULL,
    CONSTRAINT order_pkey PRIMARY KEY (id)
 );
 
