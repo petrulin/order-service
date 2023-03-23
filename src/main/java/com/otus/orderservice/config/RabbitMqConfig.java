@@ -22,6 +22,10 @@ public class RabbitMqConfig {
     private String serviceAnswerQueue;
     @Value("${spring.rabbitmq.exchanges.service-answer-exchange}")
     private String serviceAnswerExchange;
+    @Value("${spring.rabbitmq.queues.notification-queue}")
+    private String notificationQueue;
+    @Value("${spring.rabbitmq.exchanges.notification-exchange}")
+    private String notificationExchange;
 
 
     @Bean
@@ -48,6 +52,11 @@ public class RabbitMqConfig {
     }
 
     @Bean
+    public Binding queueSyncBinding() {
+        return BindingBuilder.bind(queue()).to(exchange()).with(queue);
+    }
+
+    @Bean
     public DirectExchange orderAnswerExchange() {
         return new DirectExchange(serviceAnswerExchange, true, false);
     }
@@ -58,13 +67,23 @@ public class RabbitMqConfig {
     }
 
     @Bean
-    public Binding queueSyncBinding() {
-        return BindingBuilder.bind(queue()).to(exchange()).with(queue);
-    }
-    @Bean
     public Binding orderAnswerQueueSyncBinding() {
         return BindingBuilder.bind(orderAnswerQueue()).to(orderAnswerExchange()).with(serviceAnswerQueue);
     }
 
+    @Bean
+    public DirectExchange notificationExchange() {
+        return new DirectExchange(notificationExchange, true, false);
+    }
+
+    @Bean
+    public Queue notificationQueue() {
+        return new Queue(notificationQueue, true, false, false);
+    }
+
+    @Bean
+    public Binding notificationQueueBinding() {
+        return BindingBuilder.bind(notificationQueue()).to(notificationExchange()).with(notificationQueue);
+    }
 
 }

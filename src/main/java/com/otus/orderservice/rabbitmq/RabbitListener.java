@@ -1,13 +1,17 @@
 package com.otus.orderservice.rabbitmq;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.otus.orderservice.client.AuthServiceClient;
+import com.otus.orderservice.domain.response.auth.UserResponse;
 import com.otus.orderservice.entity.Message;
 import com.otus.orderservice.entity.Order;
+import com.otus.orderservice.entity.OutBoxNotification;
 import com.otus.orderservice.rabbitmq.domain.RMessage;
 import com.otus.orderservice.rabbitmq.domain.dto.OrderDTO;
 import com.otus.orderservice.rabbitmq.domain.dto.TrxDTO;
 import com.otus.orderservice.service.MessageService;
 import com.otus.orderservice.service.OrderService;
+import com.otus.orderservice.service.OutBoxNotificationService;
 import com.rabbitmq.client.Channel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +35,8 @@ public class RabbitListener {
     private final MessageService messageService;
     private final OrderService orderService;
     private final RabbitTemplate rt;
+    private final OutBoxNotificationService outBoxNotificationService;
+    private final AuthServiceClient asc;
 
     @Value("${spring.rabbitmq.queues.service-answer-queue}")
     private String serviceAnswerQueue;
@@ -57,6 +63,19 @@ public class RabbitListener {
                         om.getTypeFactory().constructCollectionType(ArrayList.class, TrxDTO.class);
                         var trxDTO = om.convertValue(message.getMessage(), TrxDTO.class);
                         orderService.result(trxDTO);
+                        String userMessage = "Заказ успешно создан";
+                        if (!trxDTO.getPayStatus().equals("Ok")) {
+                            userMessage = trxDTO.getPayStatus();
+                        } else
+                        if (!trxDTO.getStoreStatus().equals("Ok")) {
+                            userMessage = trxDTO.getStoreStatus();
+                        } else
+                        if (!trxDTO.getDeliveryStatus().equals("Ok")) {
+                            userMessage = trxDTO.getDeliveryStatus();
+                        }
+
+                        UserResponse userResponse = asc.getUserByUserName(trxDTO.getOrder().getUserName());
+                        outBoxNotificationService.save(new OutBoxNotification(trxDTO.getOrder().getUserName(), userMessage, userResponse.getEmail()));
                     }
                     default -> log.warn("::OrderService:: rabbitmq listener method. Unknown message type");
                 }

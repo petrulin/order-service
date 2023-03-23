@@ -39,3 +39,14 @@ CREATE TABLE order_service.order (
 
 ALTER TABLE order_service.order OWNER TO order_service;
 GRANT ALL ON TABLE order_service.order TO order_service;
+
+CREATE TABLE order_service.outbox_notification (
+    id bigserial NOT NULL,
+    message varchar(4000) NOT NULL,
+    user_name varchar(50) NOT NULL,
+    email varchar(200) NOT NULL,
+    CONSTRAINT outbox_notification_pkey PRIMARY KEY (id)
+);
+
+ALTER TABLE order_service.outbox_notification OWNER TO order_service;
+GRANT ALL ON TABLE order_service.outbox_notification TO order_service;
